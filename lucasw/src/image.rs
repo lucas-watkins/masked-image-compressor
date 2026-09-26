@@ -10,7 +10,7 @@ pub enum ImageError {
 
 impl Display for ImageError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.to_string())
+        write!(f, "{:?}", self)
     }
 }
 
