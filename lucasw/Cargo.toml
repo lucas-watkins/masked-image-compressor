@@ -12,4 +12,4 @@ name = "libmicrs"
 path = "src/lib.rs"
 
 [dependencies]
-
+image = "0.25"
