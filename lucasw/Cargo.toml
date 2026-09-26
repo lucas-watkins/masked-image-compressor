@@ -1,0 +1,15 @@
+[package]
+name = "micrs"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "micrs"
+path = "src/main.rs"
+
+[lib]
+name = "libmicrs"
+path = "src/lib.rs"
+
+[dependencies]
+
