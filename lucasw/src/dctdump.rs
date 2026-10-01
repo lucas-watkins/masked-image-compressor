@@ -1,18 +1,19 @@
 use libmicrs::image::Image;
-use std::env::args;
 use std::error::Error;
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = "Dumps a list of pixels transformed by the type II DCT.")]
+struct Args {
+    #[arg(short, long)]
+    /// The name of the file to dump the coefficients of.
+    filename: String
+}
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let args: Vec<String> = args().collect();
+    let args = Args::parse();
 
-    if args.len() != 2 {
-        eprintln!(
-            "Dumps a list of pixels transformed by the DCT type II.\nUsage: dctdump [imagefile]"
-        );
-        return Ok(());
-    }
-
-    let img = Image::load(&args[1])?;
+    let img = Image::load(args.filename)?;
 
     let dct = img.get_dct_type_2();
 
@@ -20,7 +21,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     for y in 0..img.height() {
         for x in 0..img.width() {
-            println!("{:>02?} -> {:>4?}", (x, y), get_dct(x, y));
+            println!("{:?} -> {:?}", (x, y), get_dct(x, y));
         }
     }
 

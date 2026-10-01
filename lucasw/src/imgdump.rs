@@ -1,21 +1,24 @@
 use image::{GenericImageView, ImageReader};
-use std::env::args;
 use std::error::Error;
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = "Dumps a list of pixels found in an image.")]
+struct Args {
+    #[arg(short, long)]
+    /// The name of the file to dump the pixels of.
+    filename: String
+}
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let args: Vec<String> = args().collect();
+    let args = Args::parse();
 
-    if args.len() != 2 {
-        eprintln!("Dumps a list of pixels in the image.\nUsage: imgdump [imagefile]");
-        return Ok(());
-    }
-
-    let img = ImageReader::open(&args[1])?.decode()?;
+    let img = ImageReader::open(args.filename)?.decode()?;
 
     for y in 0..img.height() {
         for x in 0..img.width() {
             let pixel = img.get_pixel(x, y).0;
-            println!("{:0>2?} -> {:>4?}", (x, y), pixel);
+            println!("{:?} -> {:?}", (x, y), pixel);
         }
     }
 
