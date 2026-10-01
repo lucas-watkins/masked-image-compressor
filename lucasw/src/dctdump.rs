@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let img = Image::load(&args[1])?;
 
-    let dct = img.dct_type_2();
+    let dct = img.get_dct_type_2();
 
     let get_dct = |x, y| dct[(y * img.width() + x) as usize];
 

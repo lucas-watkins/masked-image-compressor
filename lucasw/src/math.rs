@@ -1,29 +1,43 @@
 use std::f64::consts::PI;
 
-pub fn dct_type_2(input: &Vec<f64>, n: u32) -> Vec<i8> {
-    let mut dct_output: Vec<i8> = vec![0; input.len()];
+pub fn dct_type_2(input: &Vec<f64>, n: u32) -> Vec<f64> {
+    let n = n as f64;
 
-    let cos_term = |a: u32, b: u32| -> f64 {
-        f64::cos(((2.0 * (a as f64) + 1.0) * (b as f64) * PI) / (2.0 * (n as f64)))
+    let mut dct_output: Vec<f64> = vec![0.0; input.len()];
+
+    let coeff = |x: u32| -> f64 {
+        if x == 0 {
+            1.0 / f64::sqrt(n)
+        } else {
+            f64::sqrt(2.0 / n)
+        }
     };
 
-    let coeff = |x: u32| if x == 0 { 1.0 / f64::sqrt(2.0) } else { 1.0 };
+    let n = n as u32;
 
-    // The core of the dct. i = current x, j = current y, and this iterates the remaining for
+    // The core of the dct. u = current x, v = current y, and this iterates the remaining for
     // each pixel. This is an inefficient algorithm. //TODO: Replace algorithm
-    for i in 0..n {
-        for j in 0..n {
-            let mut temp = 0.0;
+    for v in 0..n {
+        for u in 0..n {
+            let mut sum = 0.0;
 
-            for x in 0..n {
-                for y in 0..n {
-                    temp += input[(y * n + x) as usize] * cos_term(x, i) * cos_term(y, j);
+            for y in 0..n {
+                for x in 0..n {
+                    let current_val = input[(n * y + x) as usize];
+
+                    let v = v as f64;
+                    let u = u as f64;
+                    let x = x as f64;
+                    let y = y as f64;
+                    let n = n as f64;
+
+                    sum += current_val
+                        * f64::cos((2.0 * y + 1.0) * v * PI / (2.0 * n))
+                        * f64::cos((2.0 * x + 1.0) * u * PI / (2.0 * n));
                 }
             }
-
-            temp *= f64::sqrt(2.0 * (n as f64)) * coeff(i) * coeff(j);
-
-            dct_output[(n as usize) * (i as usize) + (j as usize)] = temp as i8;
+            
+            dct_output[(n * v + u) as usize] = sum * coeff(u) * coeff(v);
         }
     }
 

@@ -31,8 +31,6 @@ impl Image {
     pub fn load(filename: impl AsRef<Path>) -> Result<Image, Box<dyn Error>> {
         let img = ImageReader::open(filename)?.decode()?;
 
-        let bytes = img.as_bytes();
-
         let i = Image {
             img,
         };
@@ -60,7 +58,7 @@ impl Image {
         self.img.get_pixel(x, y).0.into()
     }
 
-    pub fn get_dct_type_2(&self) -> Vec<i8> {
+    pub fn get_dct_type_2(&self) -> Vec<f64> {
         let pixel_f64 = |x: u32, y: u32| {
             (self.pixel(x, y).3 as f64) - 128.0
         };
