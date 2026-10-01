@@ -1,4 +1,5 @@
 use libmicrs::image::*;
+use libmicrs::image::error::ImageError;
 
 #[test]
 fn test_image_load() {
