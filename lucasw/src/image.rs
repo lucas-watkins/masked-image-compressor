@@ -1,67 +1,65 @@
-use image::{ImageReader, DynamicImage, GenericImageView};
+use crate::math;
+use image::{DynamicImage, GenericImageView, ImageReader};
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::path::Path;
-use crate::math;
 
-// The ImageError enum is used for indicating what errors we have while processing
+/// The ImageError enum is used for indicating what errors we have while processing.
 #[derive(Debug)]
 pub enum ImageError {
-    NotSquareImage
+    NotSquareImage,
 }
 
-// We want to be able to print enum variants
+/// Display implementation for ImageError.
 impl Display for ImageError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self)
     }
 }
 
-// Error marking trait to allow this to be treated as an error and be put in a pointer
+/// Marks ImageError as a valid error.
 impl Error for ImageError {}
 
-// The Image struct is responsible for loading and processing images
+/// The Image struct is responsible for loading and processing images.
 pub struct Image {
     img: DynamicImage,
 }
 
 impl Image {
-
-    // Creates a new image based on a path
+    /// Creates a new image based on a path.
     pub fn load(filename: impl AsRef<Path>) -> Result<Image, Box<dyn Error>> {
         let img = ImageReader::open(filename)?.decode()?;
 
-        let i = Image {
-            img,
-        };
+        let i = Image { img };
 
         // Maybe later we'll support non-square images
         match i.width() == i.height() {
             true => Ok(i),
-            false => Err(Box::new(ImageError::NotSquareImage))
+            false => Err(Box::new(ImageError::NotSquareImage)),
         }
     }
 
-    // Returns width
+    /// Returns width.
     pub fn width(&self) -> u32 {
         self.img.width()
     }
 
-    // Returns height
+    /// Returns height.
     pub fn height(&self) -> u32 {
         self.img.height()
     }
 
-    // Returns the value of a pixel
+    /// Returns the value of a pixel.
     pub fn pixel(&self, x: u32, y: u32) -> (u8, u8, u8, u8) {
         // I have no idea why there's an anonymous public struct field that does this.
         self.img.get_pixel(x, y).0.into()
     }
 
+    /// Calculates the DCT Type 2 for this image and returns each pixel's coefficient in a vector
+    /// of f64s.
     pub fn get_dct_type_2(&self) -> Vec<f64> {
-        let pixel_f64 = |x: u32, y: u32| {
-            (self.pixel(x, y).0 as f64) / 255.0 * 2.0 - 1.0
-        };
+        // This gets channel zero of the RGBA image
+        let pixel_f64 = |x: u32, y: u32| (self.pixel(x, y).0 as f64) / 255.0 * 2.0 - 1.0;
 
         let mut dct_input = vec![0.0; (self.width() * self.height()) as usize];
 
@@ -75,4 +73,3 @@ impl Image {
         math::dct_type_2(&dct_input, self.width())
     }
 }
-
