@@ -60,7 +60,7 @@ impl Image {
 
     pub fn get_dct_type_2(&self) -> Vec<f64> {
         let pixel_f64 = |x: u32, y: u32| {
-            (self.pixel(x, y).3 as f64) - 128.0
+            (self.pixel(x, y).0 as f64) / 255.0 * 2.0 - 1.0
         };
 
         let mut dct_input = vec![0.0; (self.width() * self.height()) as usize];
