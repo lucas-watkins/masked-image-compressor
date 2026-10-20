@@ -55,11 +55,11 @@ impl Image {
 
     /// Calculates the DCT Type 2 for this image and returns each pixel's coefficient in a vector
     /// of f64s.
-    pub fn dct_2(&self) -> Vec<f64> {
+    pub fn dct_2(&self) -> Box<[f64]> {
         // This gets channel zero of the RGBA image converted on a scale from -1.0 to 1.0
         let pixel_f64 = |x: u32, y: u32| (self.pixel(x, y).0 as f64) / 255.0 * 2.0 - 1.0;
 
-        let mut dct_input = vec![0.0; (self.width() * self.height()) as usize];
+        let mut dct_input = vec![0.0; (self.width() * self.height()) as usize].into_boxed_slice();
 
         for y in 0..self.height() {
             for x in 0..self.height() {
