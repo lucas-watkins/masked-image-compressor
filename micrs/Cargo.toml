@@ -26,3 +26,5 @@ path = "src/lib.rs"
 [dependencies]
 image = "0.25"
 clap = { version = "4.6", features = ["derive"] }
+# Use std::random when not nightly instead of rand
+rand = "0.10"
