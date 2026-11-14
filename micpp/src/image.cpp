@@ -25,8 +25,8 @@ Image::Image(const std::filesystem::path& path) : m_width{ 0 }, m_height{ 0 }, m
         stbi_load_from_file(file, &m_width, &m_height, &m_channels, 4)
     };
 
-    if (p_data == nullptr || m_width != m_height) {
-        throw std::runtime_error("Image can't be read or is not a square");
+    if (p_data == nullptr) {
+        throw std::runtime_error("Failed to load image from file");
     }
 
     m_data = std::move(p_data);
@@ -53,22 +53,21 @@ Adaptor2D<std::vector<double>> Image::dct() const {
     dct.reserve(m_width * m_height);
 
     auto cos_term{
-        [this](const std::size_t a, const std::size_t b) -> double {
+        [](const std::size_t a, const std::size_t b, const int size) -> double {
             const auto a_double{ static_cast<double>(a) };
             const auto b_double{ static_cast<double>(b) };
 
-            return std::cos(
-                (2.0 * a_double + 1.0) * b_double * std::numbers::pi / (2.0 * static_cast<double>(m_width)));
+            return std::cos((2.0 * a_double + 1.0) * b_double * std::numbers::pi / (2.0 * static_cast<double>(size)));
         }
     };
 
     auto coefficient{
-        [this](const std::size_t x) -> double {
+        [](const std::size_t x, const int size) -> double {
             if (x == 0) {
-                return 1.0 / std::sqrt(static_cast<double>(m_width));
+                return 1.0 / std::sqrt(static_cast<double>(size));
             }
 
-            return std::sqrt(2.0 / static_cast<double>(m_width));
+            return std::sqrt(2.0 / static_cast<double>(size));
         }
     };
 
@@ -83,7 +82,8 @@ Adaptor2D<std::vector<double>> Image::dct() const {
 
                     const double channel_0{ m_data[index] / 255.0 * 2.0 - 1.0 };
 
-                    sum += channel_0 * cos_term(y, v) * cos_term(x, u) * coefficient(u) * coefficient(v);
+                    sum += channel_0 * cos_term(y, v, m_height) * cos_term(x, u, m_width)
+                        * coefficient(u, m_width) * coefficient(v, m_height);
                 }
             }
 
@@ -99,13 +99,13 @@ Adaptor2D<std::vector<double>> Image::dct() const {
 }
 
 Image::Pixel Image::pixel_rgba(const int x, const int y) const {
-    Pixel p {};
+    Pixel p{};
 
 #ifndef NDEBUG
     assert(m_channels <= 4);
 #endif
 
-    for (int i {0}; i < m_channels; ++i) {
+    for (int i{ 0 }; i < m_channels; ++i) {
         //
         p.rgba |=
             static_cast<std::uint32_t>(m_data[(y * m_width + x) * m_channels + i]) << (8 * i);
