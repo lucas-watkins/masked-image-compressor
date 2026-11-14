@@ -34,7 +34,7 @@ Image::Image(const std::filesystem::path& path) : m_width{ 0 }, m_height{ 0 }, m
 
 Image::Image(std::unique_ptr<unsigned char[]>&& data, const int width, const int height, const int channels) :
     m_width{ width }, m_height{ height }, m_channels{ channels } {
-    if (data == nullptr || width < 0 || height < 0 || height != width) {
+    if (data == nullptr || width < 0 || height < 0) {
         throw std::runtime_error("Invalid parameters");
     }
 
