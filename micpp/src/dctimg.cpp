@@ -37,8 +37,12 @@ int run(const argparse::ArgumentParser& parser) {
 
         const Adaptor2D adaptor{ image.dct(0) };
 
-        std::vector<std::uint8_t> result_image{};
-        result_image.reserve(adaptor.width() * adaptor.height() * 4 /* RGBA */);
+        const auto width { static_cast<int>(adaptor.width()) };
+        const auto height { static_cast<int>(adaptor.height()) };
+
+        ImageWriter image_writer{
+            Image{ std::unique_ptr<unsigned char[]>(new unsigned char[width * height * 4]), width, height, 4}
+        };
 
         const double max{
             std::abs(*std::max_element(adaptor.cbegin(), adaptor.cend(), [](const double x, const double y) {
@@ -50,22 +54,11 @@ int run(const argparse::ArgumentParser& parser) {
             for (std::size_t x{ 0 }; x < adaptor.width(); ++x) {
                 const auto scaled{ static_cast<std::uint8_t>(adaptor[x, y] / max * 255) };
 
-                for (int i{ 0 }; i < 4; ++i) {
-                    result_image.push_back(scaled);
-                }
+                const Image::Pixel pixel{ scaled, scaled, scaled, scaled };
+
+                image_writer.pixel(static_cast<int>(x), static_cast<int>(y), pixel);
             }
         }
-
-        const auto width{ static_cast<int>(adaptor.width()) };
-        const auto height{ static_cast<int>(adaptor.height()) };
-
-        // Copy memory to avoid UB from mismatched allocators
-        const auto p_result_image{  new unsigned char[width * height * 4] };
-        std::memcpy(p_result_image, result_image.data(), width * height * 4);
-
-        const ImageWriter image_writer{
-            Image{ std::unique_ptr<unsigned char[]>{ p_result_image }, width, height, 4 }
-        };
 
         image_writer.write("dctimg.png");
 

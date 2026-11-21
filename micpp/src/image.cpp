@@ -100,18 +100,25 @@ Image::dct_t Image::dct(const std::size_t channel) const {
     return Adaptor2D{ std::move(dct), static_cast<std::size_t>(m_width), static_cast<std::size_t>(m_height) };
 }
 
-Image::Pixel Image::pixel_rgba(const int x, const int y) const {
+Image::Pixel Image::pixel(const int x, const int y) const {
     Pixel p{};
+
+    if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
+        throw std::runtime_error("Pixel index out of bounds");
+    }
 
 #ifndef NDEBUG
     assert(m_channels <= 4);
 #endif
 
     for (int i{ 0 }; i < m_channels; ++i) {
-        //
         p.rgba |=
             static_cast<std::uint32_t>(m_data.get()[(y * m_width + x) * m_channels + i]) << (8 * i);
     }
 
     return p;
+}
+
+Image::Pixel Image::operator[](int x, int y) const {
+    return pixel(x, y);
 }

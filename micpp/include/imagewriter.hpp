@@ -15,6 +15,13 @@ public:
     // Writes a RGBA PNG image to the specified file path
     void write(const std::filesystem::path& /* path */) const;
 
+    // Sets a pixel's value
+    void pixel(int /* x */, int /* y */, Image::Pixel /* pixel */);
+
+    // Gets a pixel's value
+    [[nodiscard]] Image::Pixel pixel(int /* x */, int /* y */) const;
+    [[nodiscard]] Image::Pixel operator[](int /* x */, int /* y */) const;
+
     // Polymorphic destructor
     virtual ~ImageWriter() = default;
 };

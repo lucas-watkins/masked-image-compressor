@@ -32,7 +32,7 @@ int run(const argparse::ArgumentParser& parser) {
 
         for (int y{ 0 }; y < image.height(); ++y) {
             for (int x{ 0 }; x < image.width(); ++x) {
-                const Image::Pixel pixel{ image.pixel_rgba(x, y) };
+                const Image::Pixel pixel{ image.pixel(x, y) };
 
                 std::cout << '(' << x << ", " << y << "): (" << +pixel.r() << ", " << +pixel.g() << ", "
                     << +pixel.b() << ", " << +pixel.a() << ")\n";

@@ -29,6 +29,12 @@ class Image {
 
     // The pixel union holds information about a certain pixel as a record
     union Pixel {
+        Pixel() = default;
+
+        // Allow construction from parts
+        Pixel(const std::uint8_t r, const std::uint8_t g, const std::uint8_t b, const std::uint8_t a)
+            : channel{r, g, b, a} {}
+
         // Getters
         [[nodiscard]] std::uint8_t r() const {
             return channel[0];
@@ -51,8 +57,7 @@ class Image {
         std::uint8_t channel[4];
         std::uint32_t rgba;
 
-        // Private constructor that only Image can access, copy and move are public however
-        Pixel() = default;
+        // Image needs internal access
         friend Image;
     };
 
@@ -64,7 +69,8 @@ class Image {
     [[nodiscard]] int height() const { return m_height; }
     [[nodiscard]] int channels() const { return m_channels; }
 
-    [[nodiscard]] Pixel pixel_rgba(int /* x */, int /* y */) const;
+    [[nodiscard]] Pixel pixel(int /* x */, int /* y */) const;
+    [[nodiscard]] Pixel operator[](int x, int y) const;
 
     // Friend class for ImageWriter to access internal image information. Image and ImageWriter are closely
     // linked so this is okay.
