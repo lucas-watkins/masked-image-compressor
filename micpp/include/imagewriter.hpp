@@ -5,7 +5,7 @@
 #include <image.hpp>
 
 // The ImageWriter class is designed to be inherited from the implement compression algorithms
-// and provide easy ways to write an image.
+// and provide easy ways to write an image to a file. Non const image writers can also modify the underlying image
 class ImageWriter {
     Image m_image;
 

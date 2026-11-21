@@ -52,7 +52,7 @@ add_executable(dctdump src/dctdump.cpp src/image.cpp)
 target_include_directories(dctdump PRIVATE include ${MICPP_DEP_INCLUDE})
 
 # dctimg, a tool for dumping the DCT coefficients of an image into another image for visualization
-add_executable(dctimg src/dctimg.cpp src/image.cpp)
+add_executable(dctimg src/dctimg.cpp src/image.cpp src/imagewriter.cpp)
 target_include_directories(dctimg PRIVATE include ${MICPP_DEP_INCLUDE})
 
 # imgdump, a tool for dumping the contents of an image into the terminal

@@ -21,8 +21,8 @@ class Image {
     // DANGEROUS!!! DO NOT FREE THE POINTER YOU PROVIDE HERE ELSEWHERE!!!
     Image(std::unique_ptr<unsigned char[]>&& /* data */, int /* width */, int /* height */, int /* channels */);
 
-    // Cleanup m_data with free to avoid UB by mixed memory allocation APIs
-    ~Image();
+    // Move constructor, just the default is okay
+    Image(Image&&) = default;
 
     // Type alias for dct return since it is ugly otherwise,
     using dct_t = Adaptor2D<std::vector<double>>;
@@ -65,6 +65,10 @@ class Image {
     [[nodiscard]] int channels() const { return m_channels; }
 
     [[nodiscard]] Pixel pixel_rgba(int /* x */, int /* y */) const;
+
+    // Friend class for ImageWriter to access internal image information. Image and ImageWriter are closely
+    // linked so this is okay.
+    friend class ImageWriter;
 };
 
 #endif //MICPP_IMAGE_HPP

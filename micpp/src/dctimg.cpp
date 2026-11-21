@@ -1,12 +1,10 @@
 #include <iostream>
 #include <algorithm>
+#include <cstring>
 #include <argparse.hpp>
 #include <image.hpp>
+#include <imagewriter.hpp>
 
-#ifndef STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <stb_image_write.h>
-#endif
 
 // Responsible for handling the rest of the program after we parse the arguments
 static int run(const argparse::ArgumentParser& parser);
@@ -61,10 +59,15 @@ int run(const argparse::ArgumentParser& parser) {
         const auto width{ static_cast<int>(adaptor.width()) };
         const auto height{ static_cast<int>(adaptor.height()) };
 
-        // Ths stride is how many bytes are in a row (width * 4 for RGBA);
-        if (stbi_write_png("dctimg.png", width, height, 4 /* RGBA */, result_image.data(), width * 4) <= 0) {
-            std::cout << "An error occurred while writing the file!\n";
-        }
+        // Copy memory to avoid UB from mismatched allocators
+        const auto p_result_image{  new unsigned char[width * height * 4] };
+        std::memcpy(p_result_image, result_image.data(), width * height * 4);
+
+        const ImageWriter image_writer{
+            Image{ std::unique_ptr<unsigned char[]>{ p_result_image }, width, height, 4 }
+        };
+
+        image_writer.write("dctimg.png");
 
         return 0;
     } catch (std::exception& ex) {
