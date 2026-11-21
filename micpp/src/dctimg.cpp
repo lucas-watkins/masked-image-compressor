@@ -11,7 +11,7 @@
 // Responsible for handling the rest of the program after we parse the arguments
 static int run(const argparse::ArgumentParser& parser);
 
-int main(int argc, char* argv[]) {
+int main(const int argc, char* argv[]) {
     argparse::ArgumentParser parser{ "dctimg" };
 
     parser.add_description(
@@ -37,7 +37,7 @@ int run(const argparse::ArgumentParser& parser) {
         const std::filesystem::path input_filepath{ parser.get("--file") };
         const Image image{ input_filepath };
 
-        const Adaptor2D adaptor{ image.dct() };
+        const Adaptor2D adaptor{ image.dct(0) };
 
         std::vector<std::uint8_t> result_image{};
         result_image.reserve(adaptor.width() * adaptor.height() * 4 /* RGBA */);

@@ -30,7 +30,7 @@ int run(const argparse::ArgumentParser& parser) {
         const std::filesystem::path input_filepath{ parser.get("--file") };
         const Image image{ input_filepath };
 
-        const Adaptor2D adaptor{ image.dct() };
+        const Adaptor2D adaptor{ image.dct(0) };
 
         for (std::size_t y{ 0 }; y < adaptor.height(); ++y) {
             for (std::size_t x{ 0 }; x < adaptor.width(); ++x) {

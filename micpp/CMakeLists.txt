@@ -44,7 +44,7 @@ FetchContent_MakeAvailable(stb_image stb_image_write argparse)
 set(MICPP_DEP_INCLUDE "${CMAKE_CURRENT_BINARY_DIR}/include")
 
 # Main target for the compressor
-add_executable(micompress src/micompress.cpp)
+add_executable(micompress src/micompress.cpp src/image.cpp)
 target_include_directories(micompress PRIVATE include ${MICPP_DEP_INCLUDE})
 
 # dctdump, a tool for dumping the DCT coefficients of an image into the terminal

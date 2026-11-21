@@ -24,6 +24,9 @@ class Image {
     // Cleanup m_data with free to avoid UB by mixed memory allocation APIs
     ~Image();
 
+    // Type alias for dct return since it is ugly otherwise,
+    using dct_t = Adaptor2D<std::vector<double>>;
+
     // The pixel union holds information about a certain pixel as a record
     union Pixel {
         // Getters
@@ -53,8 +56,8 @@ class Image {
         friend Image;
     };
 
-    // Get DCT coefficients ONLY ON CHANNEL 0
-    [[nodiscard]] Adaptor2D<std::vector<double>> dct() const;
+    // get the DCT on a speciifc channel
+    [[nodiscard]] dct_t dct(std::size_t /* channel */) const;
 
     // Getters
     [[nodiscard]] int width() const { return m_width; }

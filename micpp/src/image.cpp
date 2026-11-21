@@ -14,7 +14,7 @@
 
 
 Image::Image(const std::filesystem::path& path) : m_width{ 0 }, m_height{ 0 }, m_channels{ 0 } {
-    FILE* file{ fopen(path.c_str(), "rb") };
+    std::FILE* file{ std::fopen(path.c_str(), "rb") };
 
     if (file == nullptr) {
         throw std::runtime_error("Failed to open file");
@@ -34,11 +34,12 @@ Image::Image(const std::filesystem::path& path) : m_width{ 0 }, m_height{ 0 }, m
 
 Image::Image(std::unique_ptr<unsigned char[]>&& data, const int width, const int height, const int channels) :
     m_width{ width }, m_height{ height }, m_channels{ channels } {
-    if (data == nullptr || width < 0 || height < 0) {
+
+    if (data == nullptr || width <= 0 || height <= 0) {
         throw std::runtime_error("Invalid parameters");
     }
 
-    this->m_data = std::move(data);
+    m_data = std::move(data);
 }
 
 Image::~Image() {
@@ -48,7 +49,10 @@ Image::~Image() {
     m_data.release();
 }
 
-Adaptor2D<std::vector<double>> Image::dct() const {
+Image::dct_t Image::dct(const std::size_t channel) const {
+    if (channel > 4)
+        throw std::runtime_error("Illegal channel, must be between 0 and 4");
+
     std::vector<double> dct{};
     dct.reserve(m_width * m_height);
 
@@ -78,7 +82,7 @@ Adaptor2D<std::vector<double>> Image::dct() const {
 
             for (std::size_t y{ 0 }; y < m_height; ++y) {
                 for (std::size_t x{ 0 }; x < m_width; ++x) {
-                    const std::size_t index{ (y * m_width + x) * m_channels };
+                    const std::size_t index{ (y * m_width + x) * m_channels + channel };
 
                     const double channel_0{ m_data[index] / 255.0 * 2.0 - 1.0 };
 
