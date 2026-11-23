@@ -7,19 +7,20 @@
 
 // Image represents a generic image at runtime that we can perform processes on
 class Image {
-    int m_width;
-    int m_height;
-    int m_channels;
+    std::size_t m_width;
+    std::size_t m_height;
+    std::size_t m_channels;
 
     // Image data
     std::unique_ptr<unsigned char[]> m_data;
 
-    public:
+public:
     // Load image from path
     Image(const std::filesystem::path& /* path to image file */);
 
     // DANGEROUS!!! DO NOT FREE THE POINTER YOU PROVIDE HERE ELSEWHERE!!!
-    Image(std::unique_ptr<unsigned char[]>&& /* data */, int /* width */, int /* height */, int /* channels */);
+    Image(std::unique_ptr<unsigned char[]>&& /* data */, std::size_t /* width */, std::size_t /* height */,
+          std::size_t /* channels */);
 
     // Move constructor, just the default is okay
     Image(Image&&) = default;
@@ -33,7 +34,7 @@ class Image {
 
         // Allow construction from parts
         Pixel(const std::uint8_t r, const std::uint8_t g, const std::uint8_t b, const std::uint8_t a)
-            : channel{r, g, b, a} {}
+            : channel{ r, g, b, a } {}
 
         // Getters
         [[nodiscard]] std::uint8_t r() const {
@@ -65,12 +66,12 @@ class Image {
     [[nodiscard]] dct_t dct(std::size_t /* channel */) const;
 
     // Getters
-    [[nodiscard]] int width() const { return m_width; }
-    [[nodiscard]] int height() const { return m_height; }
-    [[nodiscard]] int channels() const { return m_channels; }
+    [[nodiscard]] std::size_t width() const { return m_width; }
+    [[nodiscard]] std::size_t height() const { return m_height; }
+    [[nodiscard]] std::size_t channels() const { return m_channels; }
 
-    [[nodiscard]] Pixel pixel(int /* x */, int /* y */) const;
-    [[nodiscard]] Pixel operator[](int x, int y) const;
+    [[nodiscard]] Pixel pixel(std::size_t /* x */, std::size_t /* y */) const;
+    [[nodiscard]] Pixel operator[](std::size_t /* x */, std::size_t /* y */) const;
 
     // Friend class for ImageWriter to access internal image information. Image and ImageWriter are closely
     // linked so this is okay.

@@ -16,11 +16,11 @@ public:
     void write(const std::filesystem::path& /* path */) const;
 
     // Sets a pixel's value
-    void pixel(int /* x */, int /* y */, Image::Pixel /* pixel */);
+    void pixel(std::size_t /* x */, std::size_t /* y */, Image::Pixel /* pixel */);
 
     // Gets a pixel's value
-    [[nodiscard]] Image::Pixel pixel(int /* x */, int /* y */) const;
-    [[nodiscard]] Image::Pixel operator[](int /* x */, int /* y */) const;
+    [[nodiscard]] Image::Pixel pixel(std::size_t /* x */, std::size_t /* y */) const;
+    [[nodiscard]] Image::Pixel operator[](std::size_t /* x */, std::size_t /* y */) const;
 
     // Polymorphic destructor
     virtual ~ImageWriter() = default;

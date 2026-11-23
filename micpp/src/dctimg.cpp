@@ -37,11 +37,11 @@ int run(const argparse::ArgumentParser& parser) {
 
         const Adaptor2D adaptor{ image.dct(0) };
 
-        const auto width { static_cast<int>(adaptor.width()) };
-        const auto height { static_cast<int>(adaptor.height()) };
+        const std::size_t width{ adaptor.width() };
+        const std::size_t height{ adaptor.height() };
 
         ImageWriter image_writer{
-            Image{ std::unique_ptr<unsigned char[]>(new unsigned char[width * height * 4]), width, height, 4}
+            Image{ std::unique_ptr<unsigned char[]>(new unsigned char[width * height * 4]), width, height, 4 }
         };
 
         const double max{

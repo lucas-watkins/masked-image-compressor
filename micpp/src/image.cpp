@@ -9,12 +9,8 @@
 // This header can only be included once, and it will only be included here
 #ifndef STBI_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
-#define STBI_MALLOC(sz) new unsigned char[sz]
-#define STBI_FREE(p) delete[] p
-#define STBI_REALLOC(p, nsz) ([](void* op, std::size_t sz) -> void* { void* n = new unsigned char[sz]; \
-    if (n == nullptr) { return nullptr; }; \
-    if (op != nullptr) { memcpy(n, op, sz); }; \
-    delete[] op; return n;})(p, nsz)
+#define STB_IMAGE_STATIC
+#include <stb_image_mem.hpp>
 #include <stb_image.h>
 #endif
 
@@ -22,40 +18,49 @@
 Image::Image(const std::filesystem::path& path) : m_width{ 0 }, m_height{ 0 }, m_channels{ 0 } {
     std::FILE* file{ std::fopen(path.c_str(), "rb") };
 
-    if (file == nullptr) {
-        throw std::runtime_error("Failed to open file");
+    if (!file) {
+        throw std::runtime_error{ "Failed to open file" };
     }
+
+    int width{};
+    int height{};
+    int channels{};
 
 
     std::unique_ptr<unsigned char[]> p_data{
-        stbi_load_from_file(file, &m_width, &m_height, &m_channels, 4)
+        stbi_load_from_file(file, &width, &height, &channels, 4)
     };
 
-    if (p_data == nullptr) {
-        throw std::runtime_error("Failed to load image from file");
+    if (!p_data) {
+        throw std::runtime_error{ "Failed to load image from file" };
     }
+
+    m_width = width;
+    m_height = height;
+    m_channels = channels;
 
     m_data = std::move(p_data);
 }
 
-Image::Image(std::unique_ptr<unsigned char[]>&& data, const int width, const int height, const int channels) :
-    m_width{ width }, m_height{ height }, m_channels{ channels } {
-    if (data == nullptr || width <= 0 || height <= 0) {
-        throw std::runtime_error("Invalid parameters");
+Image::Image(std::unique_ptr<unsigned char[]>&& data, const std::size_t width, const std::size_t height,
+             const std::size_t channels) : m_width{ width }, m_height{ height }, m_channels{ channels } {
+    if (!data || width <= 0 || height <= 0) {
+        throw std::runtime_error{ "Invalid parameters" };
     }
 
     m_data = std::move(data);
 }
 
 Image::dct_t Image::dct(const std::size_t channel) const {
-    if (channel > 4)
-        throw std::runtime_error("Illegal channel, must be between 0 and 4");
+    if (channel > 4) {
+        throw std::runtime_error{ "Illegal channel, must be between 0 and 4" };
+    }
 
     std::vector<double> dct{};
     dct.reserve(m_width * m_height);
 
     auto cos_term{
-        [](const std::size_t a, const std::size_t b, const int size) -> double {
+        [](const std::size_t a, const std::size_t b, const std::size_t size) -> double {
             const auto a_double{ static_cast<double>(a) };
             const auto b_double{ static_cast<double>(b) };
 
@@ -64,7 +69,7 @@ Image::dct_t Image::dct(const std::size_t channel) const {
     };
 
     auto coefficient{
-        [](const std::size_t x, const int size) -> double {
+        [](const std::size_t x, const std::size_t size) -> double {
             if (x == 0) {
                 return 1.0 / std::sqrt(static_cast<double>(size));
             }
@@ -82,9 +87,9 @@ Image::dct_t Image::dct(const std::size_t channel) const {
                 for (std::size_t x{ 0 }; x < m_width; ++x) {
                     const std::size_t index{ (y * m_width + x) * m_channels + channel };
 
-                    const double channel_0{ m_data.get()[index] / 255.0 * 2.0 - 1.0 };
+                    const double channel_data{ m_data.get()[index] / 255.0 * 2.0 - 1.0 };
 
-                    sum += channel_0 * cos_term(y, v, m_height) * cos_term(x, u, m_width)
+                    sum += channel_data * cos_term(y, v, m_height) * cos_term(x, u, m_width)
                         * coefficient(u, m_width) * coefficient(v, m_height);
                 }
             }
@@ -97,13 +102,13 @@ Image::dct_t Image::dct(const std::size_t channel) const {
     assert(dct.size() == m_width * m_height);
 #endif
 
-    return Adaptor2D{ std::move(dct), static_cast<std::size_t>(m_width), static_cast<std::size_t>(m_height) };
+    return Adaptor2D{ std::move(dct), m_width, m_height };
 }
 
-Image::Pixel Image::pixel(const int x, const int y) const {
+Image::Pixel Image::pixel(const std::size_t x, const std::size_t y) const {
     Pixel p{};
 
-    if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
+    if (x >= m_width || y >= m_height) {
         throw std::runtime_error("Pixel index out of bounds");
     }
 
@@ -119,6 +124,6 @@ Image::Pixel Image::pixel(const int x, const int y) const {
     return p;
 }
 
-Image::Pixel Image::operator[](int x, int y) const {
+Image::Pixel Image::operator[](const std::size_t x, const std::size_t y) const {
     return pixel(x, y);
 }

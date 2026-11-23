@@ -22,11 +22,13 @@ void* cpp_realloc(T* old_pointer, const size_t sz) {
     void* new_pointer = new unsigned char[sz];
 
     // Memory allocation failed
-    if (!new_pointer || !old_pointer) {
+    if (!new_pointer) {
         return nullptr;
     }
 
-    std::memcpy(new_pointer, old_pointer, sz);
+    if (old_pointer) {
+        std::memcpy(new_pointer, old_pointer, sz);
+    }
 
     delete[] old_pointer;
 
