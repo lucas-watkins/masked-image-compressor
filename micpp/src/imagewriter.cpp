@@ -9,7 +9,7 @@
 
 ImageWriter::ImageWriter(Image&& image) : m_image{ std::move(image) } {}
 
-void ImageWriter::write(const std::filesystem::path& path) const {
+void ImageWriter::write(const std::filesystem::path& path) {
     // Consider only writing RGB images to save space
 
     const auto width{ static_cast<int>(m_image.width()) };

@@ -3,7 +3,6 @@
 #include <filesystem>
 #include <memory>
 #include <vector>
-#include <adaptor2d.hpp>
 
 // Image represents a generic image at runtime that we can perform processes on
 class Image {
@@ -25,45 +24,51 @@ public:
     // Move constructor, just the default is okay
     Image(Image&&) = default;
 
-    // Type alias for dct return since it is ugly otherwise,
-    using dct_t = Adaptor2D<std::vector<double>>;
-
     // The pixel union holds information about a certain pixel as a record
     union Pixel {
         Pixel() = default;
 
         // Allow construction from parts
         Pixel(const std::uint8_t r, const std::uint8_t g, const std::uint8_t b, const std::uint8_t a)
-            : channel{ r, g, b, a } {}
+            : m_channel{ r, g, b, a } {}
 
         // Getters
         [[nodiscard]] std::uint8_t r() const {
-            return channel[0];
+            return m_channel[0];
         }
 
         [[nodiscard]] std::uint8_t g() const {
-            return channel[1];
+            return m_channel[1];
         }
 
         [[nodiscard]] std::uint8_t b() const {
-            return channel[2];
+            return m_channel[2];
         }
 
         [[nodiscard]] std::uint8_t a() const {
-            return channel[3];
+            return m_channel[3];
+        }
+
+        [[nodiscard]] std::uint8_t channel(const std::size_t c) const {
+            if (c > 3) {
+                throw std::out_of_range { "Channel index out of range" };
+            }
+
+            return m_channel[c];
+        }
+
+        [[nodiscard]] std::uint8_t operator[](const std::size_t c) const {
+            return channel(c);
         }
 
     private:
         // 0 = r, 1 = g, 2 = b, 3 = a
-        std::uint8_t channel[4];
+        std::uint8_t m_channel[4];
         std::uint32_t rgba;
 
         // Image needs internal access
         friend Image;
     };
-
-    // get the DCT on a speciifc channel
-    [[nodiscard]] dct_t dct(std::size_t /* channel */) const;
 
     // Getters
     [[nodiscard]] std::size_t width() const { return m_width; }

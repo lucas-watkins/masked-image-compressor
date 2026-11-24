@@ -52,37 +52,6 @@ int run(const argparse::ArgumentParser& parser) {
         const std::size_t center_x{ adaptor.width() / 2 };
         const std::size_t center_y{ adaptor.height() / 2 };
 
-        // How many coefficients should we keep for each block, depends on the distance from center
-        auto coeffs_to_keep{
-            [center_x, center_y, blocksize, compression_percentage](const std::size_t x,
-                                                                    const std::size_t y) -> std::size_t {
-                return static_cast<std::size_t>(
-                    (1 - compression_percentage) * (std::pow(blocksize, 2) - (std::pow(center_x - x, 2) +
-                    std::pow(center_y - y, 2)))
-                );
-            }
-        };
-
-        // The idea is that we keep more of the dct coefficients the closer we are to the center of the image
-        // and also discard more the further we are from the image
-        for (std::size_t u{ 0 }; u < adaptor.height(); u += blocksize) {
-            for (std::size_t v{ 0 }; v < adaptor.width(); v += blocksize) {
-                std::size_t coeffs_in_row{ find_top_mask_count(coeffs_to_keep(v, u), blocksize) };
-
-                for (std::size_t y{ u }; y < std::min(u + blocksize, adaptor.height()); ++y) {
-                    std::size_t coeffs_put{ 0 };
-
-                    for (std::size_t x{ v }; x < std::min(v + blocksize, adaptor.width()); ++x) {
-                        if (coeffs_put < coeffs_in_row)
-                            coeffs_put++;
-                        else
-                            adaptor[x, y] = 0;
-                    }
-
-                    coeffs_in_row--;
-                }
-            }
-        }
 
 
         return 0;
@@ -94,21 +63,5 @@ int run(const argparse::ArgumentParser& parser) {
 
 // Complete the square and solve the sum of integer equation
 static std::size_t find_top_mask_count(const std::size_t total, const std::size_t blocksize) {
-    std::size_t high{ blocksize };
-    std::size_t low{ 0 };
-    std::size_t mid{};
 
-    while (low <= high) {
-        mid = (high + low) / 2;
-
-        if (const std::size_t sum{ (mid * mid + mid) / 2 }; sum < total) {
-            low = mid + 1;
-        } else if (sum == total) {
-            return mid;
-        } else {
-            high = mid - 1;
-        }
-    }
-
-    return mid;
 }
