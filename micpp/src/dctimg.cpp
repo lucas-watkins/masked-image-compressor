@@ -4,6 +4,7 @@
 #include <argparse.hpp>
 #include <image.hpp>
 #include <imagewriter.hpp>
+#include <imagemath.hpp>
 
 
 // Responsible for handling the rest of the program after we parse the arguments
@@ -35,7 +36,7 @@ int run(const argparse::ArgumentParser& parser) {
         const std::filesystem::path input_filepath{ parser.get("--file") };
         const Image image{ input_filepath };
 
-        const Adaptor2D adaptor{ image.dct(0) };
+        const Adaptor2D adaptor{ ImageMath::dct(image, 0) };
 
         const std::size_t width{ adaptor.width() };
         const std::size_t height{ adaptor.height() };

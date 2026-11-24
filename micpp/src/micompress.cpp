@@ -45,12 +45,8 @@ int run(const argparse::ArgumentParser& parser) {
         const std::filesystem::path input_filepath{ parser.get("--file") };
         const auto blocksize{ parser.get<std::size_t>("--blocksize") };
         const auto compression_percentage{ parser.get<double>("--percentage") };
+
         const Image image{ input_filepath };
-
-        Image::dct_t adaptor{ image.dct(0) };
-
-        const std::size_t center_x{ adaptor.width() / 2 };
-        const std::size_t center_y{ adaptor.height() / 2 };
 
 
 

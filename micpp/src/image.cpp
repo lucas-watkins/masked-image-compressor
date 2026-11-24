@@ -51,7 +51,7 @@ Image::Pixel Image::pixel(const std::size_t x, const std::size_t y) const {
     Pixel p{};
 
     if (x >= m_width || y >= m_height) {
-        throw std::out_of_range("Pixel index out of bounds");
+        throw std::out_of_range{ "Pixel index out of bounds" };
     }
 
     for (int i{ 0 }; i < m_channels; ++i) {
